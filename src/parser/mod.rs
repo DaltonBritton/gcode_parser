@@ -97,28 +97,3 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodePars
         })),
     }
 }
-
-/*
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn g_command_header_test0() {
-        let raw_command = "G0 x1 y2 z3";
-
-        let parsed = g_command_header(raw_command).unwrap();
-
-        assert_eq!(parsed.0, " x1 y2 z3");
-        assert_eq!(parsed.1, 0);
-    }
-
-    #[test]
-    fn g_command_header_test1() {
-        let raw_command = "G1 x3 z1";
-
-        let parsed = g_command_header(raw_command).unwrap();
-
-        assert_eq!(parsed.0, " x3 z1");
-        assert_eq!(parsed.1, 1);
-    }
-}
- */
