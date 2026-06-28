@@ -71,7 +71,7 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands> {
         CommandCode {
             key: 'G',
             value: 0 | 1,
-        } => g_commands::parse_g1_params(input),
+        } => g_commands::g1::parse_params(input),
         CommandCode {
             key: 'G',
             value: 28,
