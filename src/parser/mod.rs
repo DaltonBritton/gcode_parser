@@ -86,7 +86,7 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodePars
         CommandCode {
             key: 'G',
             value: 90,
-        } => g_commands::parse_g90(input),
+        } => g_commands::g90::parse_params(input),
         CommandCode {
             key: 'G',
             value: 91,
