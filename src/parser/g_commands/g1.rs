@@ -1,6 +1,7 @@
 use nom::{IResult, Parser, character::complete, multi::many0, sequence::preceded};
 
-use crate::parser::{Commands, Parameter};
+use crate::parser::errors::Reason;
+use crate::parser::{Commands, Parameter, errors::GcodeParseError};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct G1Params {
@@ -24,7 +25,7 @@ impl G1Params {
     }
 }
 
-pub fn parse_g1_params<'a>(input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_params<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     let (remaining, params) =
         many0(preceded(complete::space1, Parameter::parse)).parse_complete(input)?;
 
@@ -39,11 +40,19 @@ pub fn parse_g1_params<'a>(input: &'a str) -> IResult<&'a str, Commands> {
             'Z' => param_value = &mut g1_params.z,
             'E' => param_value = &mut g1_params.e,
             'F' => param_value = &mut g1_params.f,
-            _ => todo!("Error: Unknown param"),
+            _ => {
+                return Err(nom::Err::Failure(GcodeParseError::new(
+                    input,
+                    Reason::InvalidParam(param.key),
+                )));
+            }
         }
 
         if param_value.is_some() {
-            todo!("Error: Dupicate key")
+            return Err(nom::Err::Failure(GcodeParseError::new(
+                input,
+                Reason::DuplicateParam(param.key),
+            )));
         }
 
         *param_value = Some(param.value);
@@ -59,14 +68,14 @@ mod tests {
 
     use crate::parser::{
         Commands,
-        g_commands::g1::{G1Params, parse_g1_params},
+        g_commands::g1::{G1Params, parse_params},
     };
 
     #[test]
     fn g1_empty() {
         let test = "";
 
-        let test = parse_g1_params(test)
+        let test = parse_params(test)
             .expect("Unable to parse empty g1 command")
             .1;
 
@@ -77,7 +86,7 @@ mod tests {
     fn g1_all_params() {
         let test = " X1 Y2 Z3 E4 F5";
 
-        let test = parse_g1_params(test).expect("Unable to parse G1 command").1;
+        let test = parse_params(test).expect("Unable to parse G1 command").1;
 
         let expected = Commands::G1(G1Params {
             x: Some(1.),
@@ -94,7 +103,7 @@ mod tests {
     fn g1_some_params() {
         let test = " X1 Z3 F5";
 
-        let test = parse_g1_params(test).expect("Unable to parse G1 command").1;
+        let test = parse_params(test).expect("Unable to parse G1 command").1;
 
         let expected = Commands::G1(G1Params {
             x: Some(1.),
@@ -108,10 +117,10 @@ mod tests {
     }
 
     #[test]
-    fn g1_with_comment() {
+    fn g1_with_comment_1() {
         let test_str = " X1 Y2; my comment ";
 
-        let (remaining, result) = parse_g1_params(test_str).expect("Unable to parse G1 command");
+        let (remaining, result) = parse_params(test_str).expect("Unable to parse G1 command");
 
         let expected = Commands::G1(G1Params {
             x: Some(1.),
@@ -128,21 +137,39 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    fn g1_with_comment_2() {
+        let test_str = " X1 Y2     ; my comment ";
+
+        let (remaining, result) = parse_params(test_str).expect("Unable to parse G1 command");
+
+        let expected = Commands::G1(G1Params {
+            x: Some(1.),
+            y: Some(2.),
+            z: None,
+            e: None,
+            f: None,
+        });
+
+        assert_eq!(result, expected);
+
+        let expected_remaining = "     ; my comment ";
+        assert_eq!(remaining, expected_remaining);
+    }
+
+    #[test]
     fn g1_invalid_param() {
         let test = " Q3";
 
-        let test = parse_g1_params(test);
+        let test = parse_params(test);
 
         assert!(test.is_err());
     }
 
     #[test]
-    #[should_panic]
     fn g1_duplicate_param() {
         let test = " X1 X2";
 
-        let test = parse_g1_params(test);
+        let test = parse_params(test);
 
         assert!(test.is_err());
     }

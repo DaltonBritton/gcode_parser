@@ -1,14 +1,17 @@
 use nom::IResult;
 use nom::Parser;
+use nom::error::ParseError;
 use nom::number::complete::double;
 
 use nom::character::complete::u32;
 use nom::character::satisfy;
 
-use crate::parser::g_commands::G1Params;
+use crate::parser::errors::GcodeParseError;
 use crate::parser::g_commands::G28Params;
 use crate::parser::g_commands::G92Params;
+use crate::parser::g_commands::g1::G1Params;
 
+pub mod errors;
 pub mod g_commands;
 pub mod m_commands;
 
@@ -24,7 +27,7 @@ impl CommandCode {
         CommandCode { key, value }
     }
 
-    fn parse<'a>(input: &'a str) -> IResult<&'a str, Self> {
+    fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Self, E> {
         let (input, key) = satisfy(|c| c.is_alphabetic()).parse(input)?;
 
         let (input, value) = u32(input)?;
@@ -45,7 +48,7 @@ impl Parameter {
         Parameter { key, value }
     }
 
-    fn parse<'a>(input: &'a str) -> IResult<&'a str, Self> {
+    fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Self, E> {
         let (input, key) = satisfy(|c| c.is_alphabetic()).parse(input)?;
 
         let (input, value) = double(input)?;
@@ -64,7 +67,7 @@ pub enum Commands {
     G92(G92Params),
 }
 
-pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     let (input, command_code) = CommandCode::parse(input)?;
 
     match command_code {
@@ -88,10 +91,10 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands> {
             key: 'G',
             value: 91,
         } => g_commands::parse_g91(input),
-        _ => Err(nom::Err::Error(nom::error::Error::new(
+        _ => Err(nom::Err::Error(GcodeParseError {
             input,
-            nom::error::ErrorKind::Tag,
-        ))),
+            reason: errors::Reason::UnreconizedCommand,
+        })),
     }
 }
 

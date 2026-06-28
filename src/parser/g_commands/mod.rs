@@ -1,6 +1,6 @@
 use nom::IResult;
 
-use crate::parser::Commands;
+use crate::parser::{Commands, errors::GcodeParseError};
 
 pub mod g1;
 
@@ -22,18 +22,18 @@ pub struct G92Params {
     e: Option<f64>,
 }
 
-pub fn parse_g28<'a>(_input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_g28<'a>(_input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     todo!()
 }
 
-pub fn parse_g29<'a>(_input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_g29<'a>(_input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     todo!()
 }
 
-pub fn parse_g90<'a>(_input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_g90<'a>(_input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     todo!()
 }
 
-pub fn parse_g91<'a>(_input: &'a str) -> IResult<&'a str, Commands> {
+pub fn parse_g91<'a>(_input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
     todo!()
 }

@@ -1,14 +1,17 @@
 use nom::error::{ErrorKind, ParseError};
 
+#[derive(Debug)]
 pub struct GcodeParseError<'a> {
     pub input: &'a str,
     pub reason: Reason,
 }
 
+#[derive(Debug)]
 pub enum Reason {
-    DuplicateArg,
-    InvalidArg,
+    DuplicateParam(char),
+    InvalidParam(char),
     NomError(ErrorKind),
+    UnreconizedCommand,
 }
 
 impl<'a> GcodeParseError<'a> {
