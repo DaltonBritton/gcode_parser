@@ -1,22 +1,17 @@
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::space0;
-use nom::combinator::{cut, eof, peek};
-use nom::{IResult, Parser, sequence::preceded};
+use nom::IResult;
 
 use crate::parser::Commands;
 use crate::parser::errors::GcodeParseError;
+use crate::parser::param_parsers::parameterless_parser;
 
 pub fn parse_params<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
-    let (remaining, _) =
-        cut(preceded(space0, peek(alt((tag(";"), tag("\n"), eof))))).parse_complete(input)?;
+    let (remaining, _) = parameterless_parser::parse_params(input)?;
 
     Ok((remaining, Commands::G90))
 }
 
 #[cfg(test)]
 mod tests {
-
     use crate::parser::Commands;
 
     use super::parse_params;

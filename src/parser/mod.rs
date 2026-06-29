@@ -14,6 +14,7 @@ use crate::parser::g_commands::g1::G1Params;
 pub mod errors;
 pub mod g_commands;
 pub mod m_commands;
+pub mod param_parsers;
 
 struct CommandCode {
     key: char,
