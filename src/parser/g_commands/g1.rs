@@ -6,12 +6,12 @@ use crate::parser::{Commands, Parameter, errors::GcodeParseError};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct G1Params {
-    x: Option<f64>,
-    y: Option<f64>,
-    z: Option<f64>,
-    e: Option<f64>,
+    pub x: Option<f64>,
+    pub y: Option<f64>,
+    pub z: Option<f64>,
+    pub e: Option<f64>,
 
-    f: Option<f64>, // Requested movement rate in mm/min
+    pub f: Option<f64>, // Requested movement rate in mm/min
 }
 
 impl G1Params {
