@@ -4,6 +4,7 @@ use crate::parser::{Commands, errors::GcodeParseError};
 
 pub mod g1;
 pub mod g90;
+pub mod g91;
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct G28Params {
