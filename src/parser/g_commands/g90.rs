@@ -20,9 +20,7 @@ mod tests {
     fn g90_empty() {
         let test = "";
 
-        let test = parse_params(test)
-            .expect("Unable to parse empty g1 command")
-            .1;
+        let test = parse_params(test).expect("Unable to parse empty command").1;
 
         assert_eq!(test, Commands::G90);
     }
@@ -31,7 +29,8 @@ mod tests {
     fn g90_with_comment_1() {
         let test = "; my comment";
 
-        let (remaining, result) = parse_params(test).expect("Unable to parse empty g90");
+        let (remaining, result) =
+            parse_params(test).expect("Unable to parse empty command with comment");
 
         assert_eq!(remaining, "; my comment");
         assert_eq!(result, Commands::G90);
@@ -41,7 +40,7 @@ mod tests {
     fn g90_with_comment_2() {
         let test = "          ; my comment";
 
-        let (remaining, result) = parse_params(test).expect("Unable to parse empty g90");
+        let (remaining, result) = parse_params(test).expect("Unable to parse empty command");
 
         assert_eq!(remaining, "; my comment");
         assert_eq!(result, Commands::G90);
