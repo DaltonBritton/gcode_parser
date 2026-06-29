@@ -91,7 +91,7 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodePars
         CommandCode {
             key: 'G',
             value: 91,
-        } => g_commands::parse_g91(input),
+        } => g_commands::g91::parse_params(input),
         _ => Err(nom::Err::Error(GcodeParseError {
             input,
             reason: errors::Reason::UnreconizedCommand,
