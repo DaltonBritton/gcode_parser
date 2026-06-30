@@ -2,6 +2,7 @@ use nom::combinator::cut;
 use nom::{IResult, Parser, character::complete, multi::many0, sequence::preceded};
 
 use crate::parser::errors::Reason;
+use crate::parser::param_parsers::{self, param_parser};
 use crate::parser::{Commands, Parameter, errors::GcodeParseError};
 
 #[derive(Debug, PartialEq, PartialOrd)]
@@ -27,8 +28,7 @@ impl G1Params {
 }
 
 pub fn parse_params<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodeParseError<'a>> {
-    let (remaining, params) =
-        cut(many0(preceded(complete::space1, Parameter::parse))).parse_complete(input)?;
+    let (remaining, params) = param_parser::parse(input)?;
 
     let mut g1_params = G1Params::new();
 
