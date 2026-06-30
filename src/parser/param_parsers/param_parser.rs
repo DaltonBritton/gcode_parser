@@ -6,7 +6,7 @@ use crate::parser::{Parameter, errors::GcodeParseError};
 /// Parses G-code parameters, ignoring duplicates.
 ///
 /// Note: This parser does not error if there are duplicate parameter keys (e.g., multiple `X` parameters);
-/// both occurrences will occur resulting collection.
+/// both occurrences will occur in the resulting collection.
 pub fn parse<'a>(input: &'a str) -> IResult<&'a str, Vec<Parameter>, GcodeParseError<'a>> {
     cut(many0(parse_param)).parse_complete(input)
 }
