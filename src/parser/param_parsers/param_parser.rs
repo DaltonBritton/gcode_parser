@@ -8,9 +8,7 @@ use crate::parser::{Parameter, errors::GcodeParseError};
 /// Note: This parser does not error if there are duplicate parameter keys (e.g., multiple `X` parameters);
 /// both occurrences will occur resulting collection.
 pub fn parse<'a>(input: &'a str) -> IResult<&'a str, Vec<Parameter>, GcodeParseError<'a>> {
-    let (remaining, params) = cut(many0(parse_param)).parse_complete(input)?;
-
-    Ok((remaining, params))
+    cut(many0(parse_param)).parse_complete(input)
 }
 
 /// Parses a single gcode parameter
