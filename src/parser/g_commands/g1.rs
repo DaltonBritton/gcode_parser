@@ -1,9 +1,8 @@
-use nom::combinator::cut;
-use nom::{IResult, Parser, character::complete, multi::many0, sequence::preceded};
+use nom::IResult;
 
 use crate::parser::errors::Reason;
-use crate::parser::param_parsers::{self, param_parser};
-use crate::parser::{Commands, Parameter, errors::GcodeParseError};
+use crate::parser::param_parsers::param_parser;
+use crate::parser::{Commands, errors::GcodeParseError};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct G1Params {
