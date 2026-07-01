@@ -3,7 +3,7 @@ use nom::combinator::cut;
 use nom::error::ParseError;
 use nom::{IResult, Parser, character::complete, multi::many0, sequence::preceded};
 
-use crate::parser::{Parameter, errors::GcodeParseError};
+use crate::parser::errors::GcodeParseError;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Flag {
@@ -11,13 +11,13 @@ pub struct Flag {
 }
 
 impl Flag {
-    fn new(key: char) -> Self {
+    pub fn new(key: char) -> Self {
         let key = key.to_ascii_uppercase();
 
         Flag { key }
     }
 
-    fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Self, E> {
+    pub fn parse<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, Self, E> {
         let (input, key) = satisfy(|c| c.is_alphabetic()).parse(input)?;
 
         Ok((input, Self::new(key)))
@@ -34,7 +34,7 @@ pub fn parse<'a>(input: &'a str) -> IResult<&'a str, Vec<Flag>, GcodeParseError<
 
 /// Parses a single gcode parameter
 ///
-/// ie: " X1"
+/// ie: " X"
 pub fn parse_flag<'a>(input: &'a str) -> IResult<&'a str, Flag, GcodeParseError<'a>> {
     preceded(complete::space1, Flag::parse).parse_complete(input)
 }
