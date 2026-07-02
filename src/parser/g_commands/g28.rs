@@ -1,8 +1,10 @@
 use nom::IResult;
 
+use crate::parser::Parameter;
 use crate::parser::errors::Reason;
 use crate::parser::param_parsers::flag_param_parser;
 use crate::parser::param_parsers::flag_param_parser::FlagOrParam;
+use crate::parser::param_parsers::flag_parser::Flag;
 use crate::parser::{Commands, errors::GcodeParseError};
 
 #[derive(Debug, PartialEq, PartialOrd)]
@@ -51,58 +53,53 @@ pub fn parse_params<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodeParse
 
     for param in params {
         match param {
-            FlagOrParam::Flag(flag) => {
-                let param_value = match flag.key {
+            FlagOrParam::Flag(Flag {
+                key: key @ 'X'..='Z',
+            }) => {
+                let param_value = match key {
                     'X' => &mut g28_params.x,
                     'Y' => &mut g28_params.y,
                     'Z' => &mut g28_params.z,
-                    _ => {
-                        return Err(nom::Err::Failure(GcodeParseError::new(
-                            input,
-                            Reason::InvalidParam(flag.key),
-                        )));
-                    }
+                    _ => unreachable!(),
                 };
 
                 if *param_value {
                     return Err(nom::Err::Failure(GcodeParseError::new(
                         input,
-                        Reason::DuplicateParam(flag.key),
+                        Reason::DuplicateParam(key),
                     )));
                 }
 
                 *param_value = true;
             }
-            FlagOrParam::Param(param) => match param.key {
-                'R' => {
-                    if g28_params.r.is_some() {
-                        return Err(nom::Err::Failure(GcodeParseError::new(
-                            input,
-                            Reason::DuplicateParam(param.key),
-                        )));
-                    }
-
-                    g28_params.r = Some(param.value);
-                }
-                'L' => {
-                    g28_params.l = match param.value {
-                        0. => Some(false),
-                        1. => Some(true),
-                        _ => {
-                            return Err(nom::Err::Failure(GcodeParseError::new(
-                                input,
-                                Reason::InvalidParam(param.key),
-                            )));
-                        }
-                    };
-                }
-                _ => {
+            FlagOrParam::Param(Parameter { key: 'R', value }) => {
+                if g28_params.r.is_some() {
                     return Err(nom::Err::Failure(GcodeParseError::new(
                         input,
-                        Reason::InvalidParam(param.key),
+                        Reason::DuplicateParam('R'),
                     )));
                 }
-            },
+
+                g28_params.r = Some(value);
+            }
+            FlagOrParam::Param(Parameter {
+                key: 'L',
+                value: 0.,
+            }) => {
+                g28_params.l = Some(false);
+            }
+            FlagOrParam::Param(Parameter {
+                key: 'L',
+                value: 1.,
+            }) => {
+                g28_params.l = Some(true);
+            }
+            FlagOrParam::Param(Parameter { key, .. }) | FlagOrParam::Flag(Flag { key }) => {
+                return Err(nom::Err::Failure(GcodeParseError::new(
+                    input,
+                    Reason::InvalidParam(key),
+                )));
+            }
         }
     }
 
