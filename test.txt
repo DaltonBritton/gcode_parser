@@ -1,0 +1,3 @@
+Parsing /home/dalton/Downloads/3DBenchy_0.2mm_PLA_Generic Klipper Printer_12h52m.gcode
+TestParseResults { total_moves: 1570266, total_unreconized_commands: 149526, total_distance: 187772616.47398537 }
+Time in milliseconds: 254ms

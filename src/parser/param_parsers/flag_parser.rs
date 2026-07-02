@@ -7,7 +7,7 @@ use crate::parser::errors::GcodeParseError;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Flag {
-    key: char,
+    pub key: char,
 }
 
 impl Flag {

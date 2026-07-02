@@ -7,9 +7,9 @@ use nom::character::complete::u32;
 use nom::character::satisfy;
 
 use crate::parser::errors::GcodeParseError;
-use crate::parser::g_commands::G28Params;
 use crate::parser::g_commands::G92Params;
 use crate::parser::g_commands::g1::G1Params;
+use crate::parser::g_commands::g28::G28Params;
 
 pub mod errors;
 pub mod g_commands;
@@ -80,7 +80,7 @@ pub fn parse_command<'a>(input: &'a str) -> IResult<&'a str, Commands, GcodePars
         CommandCode {
             key: 'G',
             value: 28,
-        } => g_commands::parse_g28(input),
+        } => g_commands::g28::parse_params(input),
         CommandCode {
             key: 'G',
             value: 29,
